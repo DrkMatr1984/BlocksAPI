@@ -28,26 +28,88 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.material.Attachable;
 
 import me.drkmatr1984.BlocksAPI.BlocksAPI;
-import me.drkmatr1984.BlocksAPI.utils.SBlock;
+import me.drkmatr1984.BlocksAPI.objects.SBlock;
 import me.drkmatr1984.BlocksAPI.utils.Utils;
 
 public class BlockEventListeners implements Listener{
 	
-	private Set<Material> banList = new HashSet<Material>();
+	private Set<SBlock> sBlocks;
 	private BlocksAPI plugin;
 	
-	public BlockEventListeners(BlocksAPI plugin,Set<SBlock> blocksBroken, Set<Material> banList){
+	public BlockEventListeners(BlocksAPI plugin){
 		this.plugin = plugin;
-		this.banList = banList;
+		sBlocks = new HashSet<SBlock>();
 	}
 	
 	
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockBreak(BlockBreakEvent event){
-		if(plugin.recordBlockBreak){
-			Block block = event.getBlock();
+		Block block = event.getBlock();
+		Entity entity = (Entity) event.getPlayer();
+		for(BlockFace face : BlockFace.values()){
+			if(!face.equals(BlockFace.SELF)){
+				if((block.getRelative(face)).getState().getData() instanceof Attachable || (block.getRelative(face)).getType().equals(Material.VINE) || (block.getRelative(face)).getType().equals(Material.CHORUS_PLANT) || (block.getRelative(face)).getType().equals(Material.CHORUS_FLOWER)){
+						if(entity!=null){
+							sBlocks.add(new me.drkmatr1984.BlocksAPI.objects.SBlock((block.getRelative(face)), entity));
+						}else{
+							sBlocks.add(new SBlock((block.getRelative(face))));
+						}
+					}
+				}
+			}
+			if(Utils.isOtherAttachable((block.getRelative(BlockFace.UP)).getType())){
+				if(entity!=null){
+					sBlocks.add(new SBlock((block.getRelative(BlockFace.UP)), entity));
+				}else{
+					sBlocks.add(new SBlock((block.getRelative(BlockFace.UP))));
+				}
+			}
+			if((block.getRelative(BlockFace.UP)).getType().equals(Material.CACTUS) || (block.getRelative(BlockFace.UP)).getType().equals(Material.SUGAR_CANE) || (block.getRelative(BlockFace.UP)).getType().equals(Material.CHORUS_PLANT) || (block.getRelative(BlockFace.UP)).getType().equals(Material.CHORUS_FLOWER)){
+				Block up = block.getRelative(BlockFace.UP);
+				do
+				{
+					if(up.getType().equals(Material.CACTUS) || up.getType().equals(Material.SUGAR_CANE) || up.getType().equals(Material.CHORUS_PLANT) || up.getType().equals(Material.CHORUS_FLOWER)){
+						if(entity!=null){
+							sBlocks.add(new SBlock(up, entity));
+						}else{
+							sBlocks.add(new SBlock(up));
+						}
+					}
+					up = ((up.getLocation()).add(0,1,0)).getBlock();
+				}while(up.getType().equals(Material.CACTUS) || up.getType().equals(Material.SUGAR_CANE) || up.getType().equals(Material.CHORUS_PLANT) || up.getType().equals(Material.CHORUS_FLOWER));
+			}
+			if(entity!=null){
+				sBlocks.add(new SBlock(block, entity));
+			}else{
+				sBlocks.add(new SBlock(block));
+			}
+			for(SBlock bL : sBlocks){
+				if(bL!=null && !plugin.containsBlockLocation(bL)){
+					if(!plugin.addToList(bL)){
+						Bukkit.getServer().getLogger().info(ChatColor.DARK_RED + "Cannot add to List");
+					}
+					if(plugin.debugMessages){
+						Bukkit.getServer().getLogger().info("BlockBreakEvent");
+						Bukkit.getServer().getLogger().info("Saved BlockLocation");
+						Bukkit.getServer().getLogger().info("Location : " + "X:"+ bL.x + ", " + "Y:"+ bL.y + ", " + "Z:"+ bL.z);
+						Bukkit.getServer().getLogger().info("BlockType : " + bL.mat);
+						Bukkit.getServer().getLogger().info("Entity : " + bL.ent);
+						if(block.getState() instanceof Skull){
+							Bukkit.getServer().getLogger().info("SkullType: " + bL.skullType);
+							Bukkit.getServer().getLogger().info("SkullOwner: " + bL.skullOwner);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onEntityExplode(EntityExplodeEvent event) {
+		List<Block> blocks = event.blockList();
+		Entity entity = event.getEntity();
+		for(Block block : blocks){
 			ArrayList<SBlock> sBlocks = new ArrayList<SBlock>();
-			Entity entity = (Entity) event.getPlayer();
 			if(plugin.worldBanList.contains(block.getWorld().getName().toString().toLowerCase())){
 				return;
 			}
@@ -65,7 +127,7 @@ public class BlockEventListeners implements Listener{
 					}
 				}
 			}
-			if(Utils.isOtherAttachable((block.getRelative(BlockFace.UP)).getType())){
+		    if(Utils.isOtherAttachable((block.getRelative(BlockFace.UP)).getType())){
 				if(entity!=null){
 					sBlocks.add(new SBlock((block.getRelative(BlockFace.UP)), entity));
 				}else{
@@ -97,7 +159,7 @@ public class BlockEventListeners implements Listener{
 						Bukkit.getServer().getLogger().info(ChatColor.DARK_RED + "Cannot add to List");
 					}
 					if(plugin.debugMessages){
-						Bukkit.getServer().getLogger().info("BlockBreakEvent");
+						Bukkit.getServer().getLogger().info("EntityExplodeEvent");
 						Bukkit.getServer().getLogger().info("Saved BlockLocation");
 						Bukkit.getServer().getLogger().info("Location : " + "X:"+ bL.x + ", " + "Y:"+ bL.y + ", " + "Z:"+ bL.z);
 						Bukkit.getServer().getLogger().info("BlockType : " + bL.mat);
@@ -109,80 +171,8 @@ public class BlockEventListeners implements Listener{
 					}
 				}
 			}
-		}
-	}
-	
-	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-	public void onEntityExplode(EntityExplodeEvent event) {
-		if(plugin.recordEntityExplode){
-			List<Block> blocks = event.blockList();
-			Entity entity = event.getEntity();
-			for(Block block : blocks){
-				ArrayList<SBlock> sBlocks = new ArrayList<SBlock>();
-				if(plugin.worldBanList.contains(block.getWorld().getName().toString().toLowerCase())){
-					return;
-				}
-				if(this.banList.contains(block.getType())){
-					return;
-				}
-				for(BlockFace face : BlockFace.values()){
-					if(!face.equals(BlockFace.SELF)){
-						if((block.getRelative(face)).getState().getData() instanceof Attachable || (block.getRelative(face)).getType().equals(Material.VINE) || (block.getRelative(face)).getType().equals(Material.CHORUS_PLANT) || (block.getRelative(face)).getType().equals(Material.CHORUS_FLOWER)){
-							if(entity!=null){
-								sBlocks.add(new SBlock((block.getRelative(face)), entity));
-							}else{
-								sBlocks.add(new SBlock((block.getRelative(face))));
-							}
-						}
-					}
-				}
-				if(Utils.isOtherAttachable((block.getRelative(BlockFace.UP)).getType())){
-					if(entity!=null){
-						sBlocks.add(new SBlock((block.getRelative(BlockFace.UP)), entity));
-					}else{
-						sBlocks.add(new SBlock((block.getRelative(BlockFace.UP))));
-					}
-				}
-				if((block.getRelative(BlockFace.UP)).getType().equals(Material.CACTUS) || (block.getRelative(BlockFace.UP)).getType().equals(Material.SUGAR_CANE_BLOCK) || (block.getRelative(BlockFace.UP)).getType().equals(Material.CHORUS_PLANT) || (block.getRelative(BlockFace.UP)).getType().equals(Material.CHORUS_FLOWER)){
-					Block up = block.getRelative(BlockFace.UP);
-					do
-					{
-						if(up.getType().equals(Material.CACTUS) || up.getType().equals(Material.SUGAR_CANE_BLOCK) || up.getType().equals(Material.CHORUS_PLANT) || up.getType().equals(Material.CHORUS_FLOWER)){
-							if(entity!=null){
-								sBlocks.add(new SBlock(up, entity));
-							}else{
-								sBlocks.add(new SBlock(up));
-							}
-						}
-						up = ((up.getLocation()).add(0,1,0)).getBlock();
-					}while(up.getType().equals(Material.CACTUS) || up.getType().equals(Material.SUGAR_CANE_BLOCK) || up.getType().equals(Material.CHORUS_PLANT) || up.getType().equals(Material.CHORUS_FLOWER));
-				}
-				if(entity!=null){
-					sBlocks.add(new SBlock(block, entity));
-				}else{
-					sBlocks.add(new SBlock(block));
-				}
-				for(SBlock bL : sBlocks){
-					if(bL!=null && !plugin.containsBlockLocation(bL)){
-						if(!plugin.addToList(bL)){
-							Bukkit.getServer().getLogger().info(ChatColor.DARK_RED + "Cannot add to List");
-						}
-						if(plugin.debugMessages){
-							Bukkit.getServer().getLogger().info("EntityExplodeEvent");
-							Bukkit.getServer().getLogger().info("Saved BlockLocation");
-							Bukkit.getServer().getLogger().info("Location : " + "X:"+ bL.x + ", " + "Y:"+ bL.y + ", " + "Z:"+ bL.z);
-							Bukkit.getServer().getLogger().info("BlockType : " + bL.mat);
-							Bukkit.getServer().getLogger().info("Entity : " + bL.ent);
-							if(block.getState() instanceof Skull){
-								Bukkit.getServer().getLogger().info("SkullType: " + bL.skullType);
-								Bukkit.getServer().getLogger().info("SkullOwner: " + bL.skullOwner);
-							}
-						}
-					}
-				}
-			}
-		}	
-	}
+			
+		}		}
 	
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockExplode(BlockExplodeEvent event) {

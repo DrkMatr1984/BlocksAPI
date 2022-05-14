@@ -1,4 +1,4 @@
-package me.drkmatr1984.BlocksAPI.utils;
+package me.drkmatr1984.BlocksAPI.objects;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Door;
 import org.bukkit.material.PistonExtensionMaterial;
 
-import me.mrCookieSlime.CSCoreLibPlugin.general.World.CustomSkull;
+import me.drkmatr1984.BlocksAPI.utils.InventoryUtil;
 
 @SuppressWarnings("deprecation")
 public class SBlock implements Serializable{
@@ -146,14 +146,7 @@ public class SBlock implements Serializable{
 			Skull skull = (Skull) block.getState();
 			skullType = skull.getSkullType().name().toString();
 			if(skull.hasOwner()){
-				skullOwner = skull.getOwner().toString();
-				if(skullOwner.toLowerCase().equals("cscorelib")){
-					try {
-						customTexture = CustomSkull.getTexture(block);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
+				skullOwner = skull.getOwner().toString();			
 			}
 		}
 		if (block.getState().getData() instanceof PistonExtensionMaterial) {
@@ -172,237 +165,15 @@ public class SBlock implements Serializable{
 	}
 	
 	public SBlock(Block block){
-		//type = "block";
-		world = block.getLocation().getWorld().getName().toString();		
-		x = block.getLocation().getBlockX();
-		y = block.getLocation().getBlockY();
-		z = block.getLocation().getBlockZ();
-		mat = block.getType().name().toString();
-		data = block.getData();
-		ent = null;
-		if(block.getState().getData() instanceof Door){
-			Door door = (Door) block.getState().getData();
-			Block topHalf;
-			Block bottomHalf;
-			if (door.isTopHalf()) {
-				topHalf = block.getState().getBlock();
-				bottomHalf = block.getState().getBlock().getRelative(BlockFace.DOWN);
-			} else {
-				bottomHalf = block.getState().getBlock();
-				topHalf = block.getState().getBlock().getRelative(BlockFace.UP);
-			}
-			doorTopWorld = topHalf.getLocation().getWorld().getName().toString();		
-			doorTopX = topHalf.getLocation().getBlockX();
-			doorTopY = topHalf.getLocation().getBlockY();
-			doorTopZ = topHalf.getLocation().getBlockZ();
-			doorTopMat = topHalf.getType().name().toString();
-			doorTopData = topHalf.getData();
-			doorBotWorld = bottomHalf.getLocation().getWorld().getName().toString();		
-			doorBotX = bottomHalf.getLocation().getBlockX();
-			doorBotY = bottomHalf.getLocation().getBlockY();
-			doorBotZ = bottomHalf.getLocation().getBlockZ();
-			doorBotMat = bottomHalf.getType().name().toString();
-			doorBotData = bottomHalf.getData();			
-		}
-		if(block.getState() instanceof Sign){
-			Sign sign = (Sign)(block.getState());
-			signLines = new ArrayList<String>();
-			if(!sign.getLines().equals(null) && !(sign.getLines().length <= 0)){
-				for (String line : sign.getLines()){
-					signLines.add(line);
-				}
-			}else{
-				signLines = null;
-			}			
-		}
-		if(block.getState() instanceof CreatureSpawner){
-			CreatureSpawner spawner = (CreatureSpawner) block.getState();
-			entityType = spawner.getCreatureTypeName();
-			delay = spawner.getDelay();
-		}
-		if(block.getState() instanceof Skull){
-			Skull skull = (Skull) block.getState();
-			skullType = skull.getSkullType().name().toString();
-			if(skull.hasOwner()){
-				skullOwner = skull.getOwner().toString();
-				if(skullOwner.toLowerCase().equals("cscorelib")){
-					try {
-						customTexture = CustomSkull.getTexture(block);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-		if (block.getState().getData() instanceof PistonExtensionMaterial) {
-			PistonExtensionMaterial extension = (PistonExtensionMaterial) block.getState().getData();
-			face = extension.getFacing().name().toString();
-			isSticky = extension.isSticky();
-			extensionByte = extension.getData();
-			Block piston = block.getRelative(extension.getAttachedFace());
-			pistonByte = piston.getState().getData().getData();
-		}
-		if(block.getState() instanceof InventoryHolder) {
-			inventoryData = block.getState().getData().getData();
-			ItemStack[] inv = ((InventoryHolder) block.getState()).getInventory().getContents();
-			inventory = InventoryUtil.toBase64(inv);
-		}
+		this(block, null);
 	}
 	
 	public SBlock(Location loc){
-		Block block = loc.getBlock();
-		world = block.getLocation().getWorld().getName().toString();		
-		x = block.getLocation().getBlockX();
-		y = block.getLocation().getBlockY();
-		z = block.getLocation().getBlockZ();
-		mat = block.getType().name().toString();
-		data = block.getData();
-		ent = null;
-		if(block.getState().getData() instanceof Door){
-			Door door = (Door) block.getState().getData();
-			Block topHalf;
-			Block bottomHalf;
-			if (door.isTopHalf()) {
-				topHalf = block.getState().getBlock();
-				bottomHalf = block.getState().getBlock().getRelative(BlockFace.DOWN);
-			} else {
-				bottomHalf = block.getState().getBlock();
-				topHalf = block.getState().getBlock().getRelative(BlockFace.UP);
-			}
-			doorTopWorld = topHalf.getLocation().getWorld().getName().toString();		
-			doorTopX = topHalf.getLocation().getBlockX();
-			doorTopY = topHalf.getLocation().getBlockY();
-			doorTopZ = topHalf.getLocation().getBlockZ();
-			doorTopMat = topHalf.getType().name().toString();
-			doorTopData = topHalf.getData();
-			doorBotWorld = bottomHalf.getLocation().getWorld().getName().toString();		
-			doorBotX = bottomHalf.getLocation().getBlockX();
-			doorBotY = bottomHalf.getLocation().getBlockY();
-			doorBotZ = bottomHalf.getLocation().getBlockZ();
-			doorBotMat = bottomHalf.getType().name().toString();
-			doorBotData = bottomHalf.getData();			
-		}
-		if(block.getState() instanceof Sign){
-			Sign sign = (Sign)(block.getState());
-			signLines = new ArrayList<String>();
-			if(!sign.getLines().equals(null) && !(sign.getLines().length <= 0)){
-				for (String line : sign.getLines()){
-					signLines.add(line);
-				}
-			}else{
-				signLines = null;
-			}			
-		}
-		if(block.getState() instanceof CreatureSpawner){
-			CreatureSpawner spawner = (CreatureSpawner) block.getState();
-			entityType = spawner.getCreatureTypeName();
-			delay = spawner.getDelay();
-		}
-		if(block.getState() instanceof Skull){
-			Skull skull = (Skull) block.getState();
-			skullType = skull.getSkullType().name().toString();
-			if(skull.hasOwner()){
-				skullOwner = skull.getOwner().toString();
-				if(skullOwner.toLowerCase().equals("cscorelib")){
-					try {
-						customTexture = CustomSkull.getTexture(block);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-		if (block.getState().getData() instanceof PistonExtensionMaterial) {
-			PistonExtensionMaterial extension = (PistonExtensionMaterial) block.getState().getData();
-			face = extension.getFacing().name().toString();
-			isSticky = extension.isSticky();
-			extensionByte = extension.getData();
-			Block piston = block.getRelative(extension.getAttachedFace());
-			pistonByte = piston.getState().getData().getData();
-		}
-		if(block.getState() instanceof InventoryHolder) {
-			inventoryData = block.getState().getData().getData();
-			ItemStack[] inv = ((InventoryHolder) block.getState()).getInventory().getContents();
-			inventory = InventoryUtil.toBase64(inv);
-		}
+		this(loc, null);
 	}
 	
 	public SBlock(Location loc, Entity entity){
-		Block block = loc.getBlock();
-		world = block.getLocation().getWorld().getName().toString();		
-		x = block.getLocation().getBlockX();
-		y = block.getLocation().getBlockY();
-		z = block.getLocation().getBlockZ();
-		mat = block.getType().name().toString();
-		data = block.getData();
-		ent = entity.getUniqueId();
-		if(block.getState().getData() instanceof Door){
-			Door door = (Door) block.getState().getData();
-			Block topHalf;
-			Block bottomHalf;
-			if (door.isTopHalf()) {
-				topHalf = block.getState().getBlock();
-				bottomHalf = block.getState().getBlock().getRelative(BlockFace.DOWN);
-			} else {
-				bottomHalf = block.getState().getBlock();
-				topHalf = block.getState().getBlock().getRelative(BlockFace.UP);
-			}
-			doorTopWorld = topHalf.getLocation().getWorld().getName().toString();		
-			doorTopX = topHalf.getLocation().getBlockX();
-			doorTopY = topHalf.getLocation().getBlockY();
-			doorTopZ = topHalf.getLocation().getBlockZ();
-			doorTopMat = topHalf.getType().name().toString();
-			doorTopData = topHalf.getData();
-			doorBotWorld = bottomHalf.getLocation().getWorld().getName().toString();		
-			doorBotX = bottomHalf.getLocation().getBlockX();
-			doorBotY = bottomHalf.getLocation().getBlockY();
-			doorBotZ = bottomHalf.getLocation().getBlockZ();
-			doorBotMat = bottomHalf.getType().name().toString();
-			doorBotData = bottomHalf.getData();			
-		}
-		if(block.getState() instanceof Sign){
-			Sign sign = (Sign)(block.getState());
-			signLines = new ArrayList<String>();
-			if(!sign.getLines().equals(null) && !(sign.getLines().length <= 0)){
-				for (String line : sign.getLines()){
-					signLines.add(line);
-				}
-			}else{
-				signLines = null;
-			}			
-		}
-		if(block.getState() instanceof CreatureSpawner){
-			CreatureSpawner spawner = (CreatureSpawner) block.getState();
-			entityType = spawner.getCreatureTypeName();
-			delay = spawner.getDelay();
-		}
-		if(block.getState() instanceof Skull){
-			Skull skull = (Skull) block.getState();
-			skullType = skull.getSkullType().name().toString();
-			if(skull.hasOwner()){
-				skullOwner = skull.getOwner().toString();
-				if(skullOwner.toLowerCase().equals("cscorelib")){
-					try {
-						customTexture = CustomSkull.getTexture(block);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-		if (block.getState().getData() instanceof PistonExtensionMaterial) {
-			PistonExtensionMaterial extension = (PistonExtensionMaterial) block.getState().getData();
-			face = extension.getFacing().name().toString();
-			isSticky = extension.isSticky();
-			extensionByte = extension.getData();
-			Block piston = block.getRelative(extension.getAttachedFace());
-			pistonByte = piston.getState().getData().getData();
-		}
-		if(block.getState() instanceof InventoryHolder) {
-			inventoryData = block.getState().getData().getData();
-			ItemStack[] inv = ((InventoryHolder) block.getState()).getInventory().getContents();
-			inventory = InventoryUtil.toBase64(inv);
-		}
+		this(loc.getBlock(), entity);
 	}
 	
 	public Block getBlock(){
