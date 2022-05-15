@@ -21,12 +21,10 @@ public class YMLBlockStorage extends BlockStorage {
     {
         super(plugin);
         this.plugin = plugin;
-        String file = "blocks.yml";
         File folder = new File(plugin.getDataFolder().toString() + "/data");
-        this.blocksFile = new File(folder, file);
-        plugin.saveResource("data/" + file, false);
+        this.blocksFile = new File(folder, "blocks.yml");
+        plugin.saveResource("data/blocks.yml", false);
         this.blocksConfig = YamlConfiguration.loadConfiguration(this.blocksFile);
-
     }
 
     @Override

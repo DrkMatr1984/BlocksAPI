@@ -25,6 +25,26 @@ listeners:
   BlockIgnite: false
   BlockFromTo: true
   PlayerBucketEmpty: true
+storage:
+  # Storage type to store blocks
+  # Possible values: 'file' and 'database'
+  type: file
+  # Database settings
+  database:
+    # Database driver. Possible values: H2, MYSQL, POSTGRE, SQLITE
+    driver: 'mysql'
+    # Url of the server, or filename in case of SQLITE
+    url: 'mysql://127.0.0.1:3306/'
+    # The Name of the Database to use
+    database: 'dstitle'
+    # Boolean to use SSL in case of mysql database
+    useSSL: false
+    # Whether to use the autoReconnect feature of Mysql
+    autoReconnect: true
+    # Username for database. Not needed when using SQLITE
+    username: 'root'
+    # Password for database. Not needed when using SQLITE
+    password: 'password'
 debugMessages: false
 blacklistWorlds: []
 blockBlacklist: []

@@ -11,7 +11,7 @@ import me.drkmatr1984.BlocksAPI.objects.SBlock;
  */
 public abstract class BlockStorage {
 
-    BlocksAPI plugin;
+    public BlocksAPI plugin;
 
     public BlockStorage(BlocksAPI plugin)
     {
@@ -32,6 +32,6 @@ public abstract class BlockStorage {
      * need to retrieve the set of Sblocks
 	 * @throws Exception 
      */
-	public abstract void saveBlocks(String identifier, Set<SBlock> sBlocks);
+	public abstract void saveBlocks(String identifier, Set<SBlock> sBlocks) throws Exception;
 
 }
