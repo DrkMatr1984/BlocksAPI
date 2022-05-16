@@ -1,54 +1,53 @@
 package me.drkmatr1984.BlocksAPI;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BlocksAPI extends JavaPlugin
 {
-    private static BlocksAPI plugin;
+    private JavaPlugin plugin;
     private Logger log;
     private PluginManager pm; //Used to register Events
     private BlocksAPIConfig config;
-  
+    private static BlocksAPI instance;
+    
     @Override
     public void onEnable()
     {
-	    plugin = this; //creates a plugin instance for easy access to plugin
+    	instance = new BlocksAPI(this);
+    }
+    
+    public BlocksAPI(JavaPlugin plugin)
+    {
+    	instance = this;
+	    this.plugin = plugin; //creates a plugin instance for easy access to plugin
 	    log = plugin.getServer().getLogger();
 	    pm = plugin.getServer().getPluginManager();
-        config = new BlocksAPIConfig(this);
+        config = new BlocksAPIConfig(plugin, this);
         this.log.info("BlocksAPI enabled!");
     }
   
+    @Override
     public void onDisable()
     {
-	  
+	    //save cached blocks into database
     }
   
-    public static BlocksAPI getInstance(){
-	  return plugin;
+    public JavaPlugin getPlugin(){
+	    return plugin;
     }
     
-    
-    //gotta create config loading class
-    private void loadDatabase() {
-	  
+    public static BlocksAPI getInstance(){
+	    return instance;
     }
 
     public PluginManager getPm() {
 	    return pm;
     }
+
+	public BlocksAPIConfig getConfiguration() {
+		return config;
+	}
 }

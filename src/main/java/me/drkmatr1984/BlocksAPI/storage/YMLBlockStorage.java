@@ -7,6 +7,8 @@ import me.drkmatr1984.BlocksAPI.utils.BlockSerialization;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
@@ -15,12 +17,10 @@ public class YMLBlockStorage extends BlockStorage {
 
     FileConfiguration blocksConfig  = null;
     File blocksFile  = null;
-    private BlocksAPI plugin;
 
-    public YMLBlockStorage(BlocksAPI plugin)
+    public YMLBlockStorage(JavaPlugin plugin, BlocksAPI instance)
     {
-        super(plugin);
-        this.plugin = plugin;
+        super(plugin, instance);
         File folder = new File(plugin.getDataFolder().toString() + "/data");
         this.blocksFile = new File(folder, "blocks.yml");
         plugin.saveResource("data/blocks.yml", false);

@@ -5,6 +5,8 @@ import me.drkmatr1984.BlocksAPI.objects.SBlock;
 import me.drkmatr1984.BlocksAPI.utils.BlockSerialization;
 
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -22,20 +24,18 @@ public class SQLBlockStorage extends BlockStorage {
     protected String url = "";
     protected String username = "";
     protected String password = "";
-    private BlocksAPI plugin;
 
     private Connection conn = null;
 
-    public SQLBlockStorage(BlocksAPI plugin) throws SQLException
+    public SQLBlockStorage(JavaPlugin plugin, BlocksAPI instance) throws SQLException
     {
-        super(plugin);
-        this.plugin = plugin;
-        this.driver = DatabaseType.match(plugin.getConfig().getString(("storage.database.driver")));
-        this.username = plugin.getConfig().getString("storage.database.username");
-        this.password = plugin.getConfig().getString("storage.database.password");
+        super(plugin, instance);
+        this.driver = DatabaseType.match(instance.getConfiguration().getDriver());
+        this.username = instance.getConfiguration().getUsername();
+        this.password = instance.getConfiguration().getPassword();
         if(this.driver!=null) {
         	if(this.driver.equals(DatabaseType.SQLITE)){
-            	this.url = "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + System.getProperty("file.separator") + plugin.getConfig().getString("storage.database.url");        	
+            	this.url = "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + System.getProperty("file.separator") + instance.getConfiguration().getUrl();        	
                 try
             	{
                     if (!loadDriver()) {
@@ -64,10 +64,10 @@ public class SQLBlockStorage extends BlockStorage {
                     return;
             	}
             }else{
-            	if(plugin.getConfig().getString("storage.database.autoReconnect").equalsIgnoreCase("true"))
-            		this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + plugin.getConfig().getString("storage.database.database") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL") + "&autoReconnect=true";
+            	if(instance.getConfiguration().isAutoReconnect() == true)
+            		this.url = "jdbc:" + instance.getConfiguration().getUrl() + instance.getConfiguration().getDatabase() + "?useSSL=" + instance.getConfiguration().isUseSSL() + "&autoReconnect=true";
             	else
-            		this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + plugin.getConfig().getString("storage.database.database") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL");
+            		this.url = "jdbc:" + instance.getConfiguration().getUrl() + instance.getConfiguration().getDatabase() + "?useSSL=" + instance.getConfiguration().isUseSSL();
             	config = new HikariConfig();
             	config.setJdbcUrl(this.url);
                 config.setUsername(this.username);

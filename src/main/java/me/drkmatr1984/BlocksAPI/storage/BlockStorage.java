@@ -2,6 +2,8 @@ package me.drkmatr1984.BlocksAPI.storage;
 
 import java.util.Set;
 
+import org.bukkit.plugin.java.JavaPlugin;
+
 import me.drkmatr1984.BlocksAPI.BlocksAPI;
 import me.drkmatr1984.BlocksAPI.objects.SBlock;
 
@@ -11,11 +13,13 @@ import me.drkmatr1984.BlocksAPI.objects.SBlock;
  */
 public abstract class BlockStorage {
 
-    public BlocksAPI plugin;
+    public BlocksAPI instance;
+    public JavaPlugin plugin;
 
-    public BlockStorage(BlocksAPI plugin)
+    public BlockStorage(JavaPlugin plugin, BlocksAPI instance)
     {
         this.plugin = plugin;
+        this.instance = instance;
     }
 
     /**
